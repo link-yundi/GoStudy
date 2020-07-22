@@ -33,4 +33,30 @@
 -  并发安全与锁
 
   - 互斥锁：一种常用的控制共享资源访问的方法，他能够保证同时只有一个goroutine可以访问共享资源
+
   - 读写互斥锁：分为读锁和写锁。当一个goroutine获得读锁后，其他goroutine如果获得读锁，则不等待，如果获得写锁，则会等待。当一个goroutine获得写锁后，其他goroutine不论获得读锁还是写锁都要等待
+
+    > 运用场景：读操作远远多于写操作，运用读写互斥锁可以极大地提升程序的性能
+
+    goroutine使用时可以配合sync.WaitGroup使用
+
+    ```go
+    var wg sync.WaitGroup
+    
+    func task() {
+      // do something
+      ....
+      wg.Done()			// 任务完成，WaitGroup中的task数减一
+    }
+    
+    func foo() {
+      for i:= 0; i < 100l i++ {
+        wg.Add(1)		// 每启动一个goroutine，都记录下来，WaitGroup中的task数加一
+        go task()
+      }
+      wg.Wait()			// 阻塞，等待所有的goroutine执行完毕
+      ....
+    }
+    ```
+
+    
